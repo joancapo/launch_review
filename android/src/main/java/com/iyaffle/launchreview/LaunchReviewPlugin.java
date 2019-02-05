@@ -32,23 +32,29 @@ public class LaunchReviewPlugin implements MethodCallHandler {
   @Override
   public void onMethodCall(MethodCall call, Result result) {
     if (call.method.equals("launch")) {
-      String appPackageName = call.argument("android_id");
-
-      if (appPackageName == null) {
-        appPackageName = mRegistrar.activity().getPackageName();
-      }
-
-      try {
-          mRegistrar.activity().startActivity(new Intent(Intent.ACTION_VIEW,
-              Uri.parse("market://details?id=" + appPackageName)));
-      } catch (ActivityNotFoundException e) {
-          mRegistrar.activity().startActivity(new Intent(Intent.ACTION_VIEW,
-              Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
-      }
-
-      result.success(null);
+      openStore(call, result);
     } else {
       result.notImplemented();
     }
+  }
+
+  private void openStore(MethodCall call, Result result) {
+    String appPackageName = call.argument("android_id");
+    if (appPackageName == null) {
+      appPackageName = registrar.activity().getPackageName();
+    }
+    String action = Intent.ACTION_VIEW;
+    try {
+      Intent intent = new Intent(Intent.ACTION_VIEW);
+      Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName);
+      intent.setData(uri);
+      intent.setPackage("com.android.vending");
+      registrar.activity().startActivity(intent);
+    } catch (ActivityNotFoundException ex) {
+      Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName);
+      Intent intent = new Intent(action, uri);
+      registrar.activity().startActivity(intent);
+    }
+    result.success(null);
   }
 }
