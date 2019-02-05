@@ -41,7 +41,7 @@ public class LaunchReviewPlugin implements MethodCallHandler {
   private void openStore(MethodCall call, Result result) {
     String appPackageName = call.argument("android_id");
     if (appPackageName == null) {
-      appPackageName = registrar.activity().getPackageName();
+      appPackageName = mRegistrar.activity().getPackageName();
     }
     String action = Intent.ACTION_VIEW;
     try {
@@ -49,11 +49,11 @@ public class LaunchReviewPlugin implements MethodCallHandler {
       Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName);
       intent.setData(uri);
       intent.setPackage("com.android.vending");
-      registrar.activity().startActivity(intent);
+      mRegistrar.activity().startActivity(intent);
     } catch (ActivityNotFoundException ex) {
       Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName);
       Intent intent = new Intent(action, uri);
-      registrar.activity().startActivity(intent);
+      mRegistrar.activity().startActivity(intent);
     }
     result.success(null);
   }
